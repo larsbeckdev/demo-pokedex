@@ -26,7 +26,7 @@
   border-radius: var(--ds-radius-pill);
   background: linear-gradient(#e53935 0 48%, #111 48% 52%, #f5f5f5 52% 100%);
   position: relative;
-  animation: wobble 900ms ease-in-out infinite;
+  animation: wobble 2200ms cubic-bezier(0.45, 0, 0.55, 1) infinite;
   box-shadow: var(--ds-shadow-sm);
 }
 
