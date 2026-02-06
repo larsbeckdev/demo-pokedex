@@ -18,7 +18,8 @@
         :key="t.type.name"
         size="small"
         round
-        :style="tagStyle(t.type.name as PokemonTypeName)">
+        :style="tagStyle(t.type.name as PokemonTypeName)"
+        class="typeTag">
         {{ t.type.name }}
       </n-tag>
     </n-space>
@@ -146,5 +147,17 @@ img {
   height: 96px;
   object-fit: contain;
   filter: drop-shadow(var(--ds-img-drop-shadow));
+}
+
+.typeTag {
+  text-transform: capitalize;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease;
+}
+
+.typeTag:hover {
+  background-color: var(--ds-type-chip-bg);
+  border-color: var(--ds-type-chip-border);
 }
 </style>
