@@ -1,260 +1,72 @@
 // src/features/pokedex/composables/usePokedex.ts
 
-import { computed, reactive, ref } from "vue";
-import {
-  getPokemon,
-  getPokemonPage,
-  getSpecies,
-  getTypes,
-  getEvolutionChainByUrl,
-} from "@/features/pokedex/api/pokeApi";
-import { getCached, setCached } from "@/features/pokedex/cache/resourceCache";
-
-type Pokemon = {
-  id: number;
-  name: string;
-  types: string[];
-  sprite: string;
-  stats: Record<string, number>;
-};
-
-type PdxState = {
-  all: Pokemon[];
-  offset: number;
-  types: string[];
-};
-
-const STATE_KEY = "pdx_state:v1";
-const STATE_TTL = 24 * 60 * 60_000; // 24h
-
-function cap(s: string) {
-  return s ? s[0].toUpperCase() + s.slice(1) : s;
-}
-
-async function pMapLimit<T, R>(
-  items: T[],
-  limit: number,
-  fn: (t: T) => Promise<R>,
-) {
-  const out: R[] = [];
-  let i = 0;
-
-  async function worker() {
-    while (i < items.length) {
-      const idx = i++;
-      out[idx] = await fn(items[idx]);
-    }
-  }
-
-  await Promise.all(Array.from({ length: limit }, worker));
-  return out;
-}
-
-function toPokemon(dto: any): Pokemon {
-  const stats: Record<string, number> = {};
-  for (const s of dto.stats) stats[s.stat.name] = s.base_stat;
-
-  return {
-    id: dto.id,
-    name: cap(dto.name),
-    types: dto.types.map((t: any) => t.type.name),
-    sprite:
-      dto.sprites?.other?.["official-artwork"]?.front_default ||
-      dto.sprites?.front_default ||
-      "",
-    stats,
-  };
-}
-
-function loadState(): PdxState | null {
-  return getCached<PdxState>(STATE_KEY);
-}
-
-function saveState(all: Pokemon[], offset: number, types: string[]) {
-  // wichtig: in reactive arrays nicht direkt speichern, sondern plain copy
-  setCached<PdxState>(
-    STATE_KEY,
-    {
-      all: all.map((p) => ({
-        ...p,
-        stats: { ...p.stats },
-        types: [...p.types],
-      })),
-      offset,
-      types: [...types],
-    },
-    STATE_TTL,
-  );
-}
+import { ref } from "vue";
+import { fetchPokemonList, fetchPokemonDetail } from "../api/pokeApi";
+import { getCached, setCached } from "../cache/resourceCache";
 
 export function usePokedex() {
-  const pageSize = 30;
-  const offset = ref(0);
-
-  const isBootLoading = ref(true);
-  const isLoadingMore = ref(false);
+  const list = ref<any[]>([]);
+  const loadingList = ref(false);
+  const loadingDetail = ref(false);
   const error = ref<string | null>(null);
+  const selected = ref<any | null>(null);
 
-  const all = reactive<Pokemon[]>([]);
-  const query = ref("");
-  const selectedTypes = ref<string[]>([]);
-
-  const types = ref<string[]>([]);
-  const overlayOpen = ref(false);
-  const activeId = ref<number | null>(null);
-
-  const filtered = computed(() => {
-    const q = query.value.trim().toLowerCase();
-    return all.filter((p) => {
-      const byText = !q || p.name.toLowerCase().includes(q);
-      const byType =
-        selectedTypes.value.length === 0 ||
-        selectedTypes.value.every((t) => p.types.includes(t));
-      return byText && byType;
-    });
-  });
-
-  const activeIndex = computed(() =>
-    filtered.value.findIndex((p) => p.id === activeId.value),
-  );
-
-  const activePokemon = computed(
-    () => filtered.value[activeIndex.value] || null,
-  );
-
-  async function loadTypes() {
-    const res = await getTypes();
-    const names = res.results.map((r) => r.name);
-    types.value = names.filter((n) => !["unknown", "shadow"].includes(n));
-    saveState(all, offset.value, types.value);
-  }
-
-  async function loadNextPage() {
-    if (isLoadingMore.value) return;
-
-    isLoadingMore.value = true;
+  async function loadList(limit = 30) {
+    loadingList.value = true;
     error.value = null;
 
     try {
-      const page = await getPokemonPage(pageSize, offset.value);
+      const cacheKey = `list-${limit}`;
+      const cached = getCached<any[]>(cacheKey);
 
-      // parallelisierung ja, aber dank getOrCreate() keine Doppel-Fetches pro URL
-      const details = await pMapLimit(page.results, 6, async (r) => {
-        const dto = await getPokemon(r.name);
-        return toPokemon(dto);
-      });
-
-      all.push(...details);
-      offset.value += pageSize;
-
-      saveState(all, offset.value, types.value);
-    } catch (e: any) {
-      error.value = e?.message || "Failed to load Pokémon.";
-    } finally {
-      isLoadingMore.value = false;
-    }
-  }
-
-  async function boot() {
-    try {
-      // ✅ zuerst local state
-      const st = loadState();
-      if (st && st.all?.length) {
-        all.splice(0, all.length, ...st.all);
-        offset.value = st.offset ?? st.all.length;
-        types.value = st.types ?? [];
+      if (cached) {
+        list.value = cached;
         return;
       }
 
-      // sonst normal
-      await loadTypes();
-      await loadNextPage();
+      const data = await fetchPokemonList(limit);
+      list.value = data.results;
+      setCached(cacheKey, data.results);
+    } catch (e: any) {
+      error.value = e.message ?? "Unknown error";
     } finally {
-      isBootLoading.value = false;
+      loadingList.value = false;
     }
   }
 
-  async function searchByName() {
-    const q = query.value.trim().toLowerCase();
-    if (q.length < 3) return;
-
+  async function loadDetail(pokemon: { url: string }) {
+    loadingDetail.value = true;
     error.value = null;
-    isLoadingMore.value = true;
 
     try {
-      const dto = await getPokemon(q);
-      const p = toPokemon(dto);
-      const exists = all.some((x) => x.id === p.id);
-      if (!exists) {
-        all.unshift(p);
-        saveState(all, offset.value, types.value);
+      const cached = getCached<any>(pokemon.url);
+      if (cached) {
+        selected.value = cached;
+        return;
       }
-      openOverlay(p.id);
-    } catch {
-      error.value = "No Pokémon found.";
+
+      const detail = await fetchPokemonDetail(pokemon.url);
+      selected.value = detail;
+      setCached(pokemon.url, detail);
+    } catch (e: any) {
+      error.value = e.message ?? "Unknown error";
     } finally {
-      isLoadingMore.value = false;
+      loadingDetail.value = false;
     }
   }
 
-  function openOverlay(id: number) {
-    activeId.value = id;
-    overlayOpen.value = true;
-  }
-
-  function closeOverlay() {
-    overlayOpen.value = false;
-  }
-
-  function next() {
-    const idx = activeIndex.value;
-    if (idx < 0) return;
-    activeId.value =
-      filtered.value[(idx + 1) % filtered.value.length]?.id ?? null;
-  }
-
-  function prev() {
-    const idx = activeIndex.value;
-    if (idx < 0) return;
-    activeId.value =
-      filtered.value[(idx - 1 + filtered.value.length) % filtered.value.length]
-        ?.id ?? null;
-  }
-
-  async function loadEvolutionForActive() {
-    const p = activePokemon.value;
-    if (!p) return null;
-
-    const species = await getSpecies(p.id);
-    const url = species?.evolution_chain?.url;
-    if (!url) return null;
-
-    return getEvolutionChainByUrl(url);
+  function clearSelection() {
+    selected.value = null;
   }
 
   return {
-    // state
-    types,
-    all,
-    filtered,
-    query,
-    selectedTypes,
-    isBootLoading,
-    isLoadingMore,
+    list,
+    selected,
+    loadingList,
+    loadingDetail,
     error,
-
-    // overlay
-    overlayOpen,
-    activePokemon,
-
-    // actions
-    boot,
-    loadNextPage,
-    searchByName,
-    openOverlay,
-    closeOverlay,
-    next,
-    prev,
-    loadEvolutionForActive,
+    loadList,
+    loadDetail,
+    clearSelection,
   };
 }
