@@ -33,9 +33,9 @@ export const tokensLight = {
     border: "#cbd5e1",
     borderStrong: "#94a3b8",
 
-    /* ✅ Additions */
-    overlayBg: "rgba(2,6,23,0.40)", // nicht “black”, sondern slate/ink
-    panelBg: "rgba(255,255,255,0.92)", // light panel statt dark panel
+    /* Additions */
+    overlayBg: "rgba(2,6,23,0.40)", 
+    panelBg: "rgba(255,255,255,0.92)", 
     focusRing: "rgba(249,115,22,0.35)",
 
     typeChipBg: "rgba(2,6,23,0.04)",
