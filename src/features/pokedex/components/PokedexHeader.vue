@@ -4,11 +4,6 @@
     <div class="headerCard">
       <!-- Top Row -->
       <div class="topRow">
-        <div class="titleWrap">
-          <h2 class="title">Pokédex</h2>
-          <span class="subtitle">Search and filter Pokémon</span>
-        </div>
-
         <n-space align="center" class="searchRow">
           <n-input
             v-model:value="queryModel"
