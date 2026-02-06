@@ -1,147 +1,82 @@
 <template>
   <div class="page">
-    <PokedexHeader
-      :model="query"
-      :loading="isLoadingMore"
-      @search="searchByName">
-      <TypeFilter v-model="selectedTypes" :types="types" />
-    </PokedexHeader>
+    <PokeballLoader v-if="loadingInitial" />
 
-    <main class="main">
-      <n-alert v-if="error" type="warning" :show-icon="true">{{
-        error
-      }}</n-alert>
+    <n-space v-else vertical size="large" class="content">
+      <PokedexHeader
+        v-model:query="query"
+        v-model:selectedTypes="selectedTypes"
+        :all-types="allTypes"
+        :can-search="canSearch"
+        :no-results="!loadingMore && filtered.length === 0"
+        @search="runSearch" />
 
-      <div class="grid">
-        <PokemonCard
-          v-for="p in filtered"
-          :key="p.id"
-          :pokemon="p"
-          :bg="typeBg(p.types)"
-          @open="openOverlay(p.id)" />
-      </div>
+      <n-alert v-if="error" type="error" closable @close="error = null">
+        {{ error }}
+      </n-alert>
 
-      <div class="footer">
+      <PokemonGrid :items="filtered" @open="openOverlayById" />
+
+      <n-space justify="center" style="padding: 10px 0 30px">
         <n-button
           size="large"
-          :loading="isLoadingMore"
-          :disabled="isLoadingMore"
-          @click="loadNextPage">
+          :loading="loadingMore"
+          :disabled="loadingMore"
+          @click="loadPage">
           Load more
         </n-button>
-      </div>
-    </main>
+      </n-space>
+    </n-space>
 
     <PokemonOverlay
-      :show="overlayOpen"
-      :pokemon="activePokemon"
-      :load-evolution="loadEvolutionForActive"
+      :open="overlayOpen"
+      :pokemon="overlayPokemon"
       @close="closeOverlay"
-      @next="next"
-      @prev="prev" />
-
-    <PokeballLoader v-if="isBootLoading" />
+      @next="nextOverlay"
+      @prev="prevOverlay" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted } from "vue";
-import { useHead } from "@vueuse/head";
-
 import { usePokedex } from "@/features/pokedex/composables/usePokedex";
-import PokeballLoader from "@/features/pokedex/components/PokeballLoader.vue";
+
 import PokedexHeader from "@/features/pokedex/components/PokedexHeader.vue";
-import PokemonCard from "@/features/pokedex/components/PokemonCard.vue";
+import PokemonGrid from "@/features/pokedex/components/PokemonGrid.vue";
 import PokemonOverlay from "@/features/pokedex/components/PokemonOverlay.vue";
-import TypeFilter from "@/features/pokedex/components/TypeFilter.vue";
-
-useHead({ title: "Pokédex" });
-
-import { getCached, setCached } from "@/features/pokedex/cache/resourceCache";
-
-const STATE_KEY = "pdx_state:v1";
-const STATE_TTL = 24 * 60 * 60_000; // z.B. 24h
+import PokeballLoader from "@/features/pokedex/components/PokeballLoader.vue";
 
 const {
-  types,
+  loadingInitial,
+  loadingMore,
+  error,
   filtered,
   query,
+  canSearch,
   selectedTypes,
-  isBootLoading,
-  isLoadingMore,
-  error,
+  allTypes,
   overlayOpen,
-  activePokemon,
-  boot,
-  loadNextPage,
-  searchByName,
-  openOverlay,
+  overlayPokemon,
+  openOverlayById,
   closeOverlay,
-  next,
-  prev,
-  loadEvolutionForActive,
+  nextOverlay,
+  prevOverlay,
+  init,
+  loadPage,
+  runSearch,
 } = usePokedex();
 
-function typeBg(ts: string[]) {
-  const t = ts[0] || "normal";
-  const map: Record<string, string> = {
-    fire: "linear-gradient(135deg, rgba(255,90,60,.35), rgba(255,255,255,.6))",
-    water:
-      "linear-gradient(135deg, rgba(60,140,255,.35), rgba(255,255,255,.6))",
-    grass:
-      "linear-gradient(135deg, rgba(60,200,120,.35), rgba(255,255,255,.6))",
-    electric:
-      "linear-gradient(135deg, rgba(255,220,60,.4), rgba(255,255,255,.6))",
-    psychic:
-      "linear-gradient(135deg, rgba(255,80,180,.35), rgba(255,255,255,.6))",
-    ice: "linear-gradient(135deg, rgba(120,220,255,.35), rgba(255,255,255,.6))",
-    dragon:
-      "linear-gradient(135deg, rgba(120,80,255,.35), rgba(255,255,255,.6))",
-    dark: "linear-gradient(135deg, rgba(30,30,40,.35), rgba(255,255,255,.6))",
-    fairy:
-      "linear-gradient(135deg, rgba(255,140,220,.35), rgba(255,255,255,.6))",
-    normal:
-      "linear-gradient(135deg, rgba(160,160,160,.28), rgba(255,255,255,.6))",
-  };
-  return map[t] || map.normal;
-}
-
-onMounted(boot);
+onMounted(init);
 </script>
 
 <style scoped>
 .page {
   min-height: 100vh;
-}
-.main {
-  width: min(1440px, 100%);
-  margin: 0 auto;
-  padding: 14px 16px 40px;
-}
-.grid {
-  margin-top: 14px;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
+  justify-items: center;
 }
-.footer {
-  margin-top: 18px;
-  display: flex;
-  justify-content: center;
-}
-@media (max-width: 1100px) {
-  .grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-@media (max-width: 820px) {
-  .grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-@media (max-width: 360px) {
-  .grid {
-    grid-template-columns: 1fr;
-  }
+.content {
+  width: min(1440px, 100%);
+  padding: 18px;
 }
 </style>
