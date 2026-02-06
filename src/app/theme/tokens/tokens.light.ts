@@ -11,23 +11,36 @@ export const tokensLight = {
 
   colors: {
     /* Brand */
-    primary: "#f97316", // Orange klar & präsent
+    primary: "#f97316",
     primaryHover: "#fb923c",
     primaryPressed: "#ea580c",
 
-    /* Text – deutlich gestaffelt */
-    textBase: "#020617", // fast schwarz → maximale Lesbarkeit
-    textMuted: "#334155", // slate-700
-    textDisabled: "#64748b", // slate-500
+    /* Text */
+    textBase: "#020617",
+    textMuted: "#334155",
+    textDisabled: "#64748b",
 
-    /* Backgrounds – klare Ebenen */
-    bodyBg: "#f1f5f9", // sichtbar grau → UI-Rahmen
-    cardBg: "#ffffff", // harte Trennung zum Body
-    cardBgElevated: "#e5e7eb", // Hover / aktive Flächen klar erkennbar
+    /* Backgrounds */
+    bodyBg: "#f1f5f9",
+    cardBg: "#ffffff",
+    cardBgElevated: "#e5e7eb",
 
-    /* Borders – sichtbar, nicht zart */
-    border: "#cbd5e1", // slate-300
-    borderStrong: "#94a3b8", // slate-400
+    /* Borders */
+    border: "#cbd5e1",
+    borderStrong: "#94a3b8",
+
+    /* ✅ Additions */
+    overlayBg: "rgba(2,6,23,0.40)", // nicht “black”, sondern slate/ink
+    panelBg: "rgba(255,255,255,0.92)", // light panel statt dark panel
+    focusRing: "rgba(249,115,22,0.35)",
+
+    typeChipBg: "rgba(2,6,23,0.04)",
+    typeChipBorder: "rgba(2,6,23,0.10)",
+
+    shadowSm: "0 10px 28px rgba(2,6,23,0.10)",
+    shadowMd: "0 20px 60px rgba(2,6,23,0.16)",
+
+    cardGradientTo: "rgba(2,6,23,0.04)",
   },
 } as const;
 
