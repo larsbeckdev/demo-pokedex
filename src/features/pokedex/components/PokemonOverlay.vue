@@ -223,15 +223,20 @@ const evoTagStyle = {
   background: var(--ds-overlay);
   backdrop-filter: blur(8px);
   z-index: 9998;
+
+  /* Center */
   display: grid;
-  place-content: center;
+  place-items: center;
+
+  /* Abstand zum Rand */
   padding: var(--ds-space-lg);
 }
 
 .panel {
-  width: 100%;
-  min-width: 100%;
-  max-width: 1440px;
+  /* wichtig: nicht 100% erzwingen */
+  width: min(980px, 100%);
+  max-width: 980px;
+
   border-radius: calc(var(--ds-radius-xl));
   border: 1px solid var(--ds-card-border);
   background: var(--ds-panel-bg);
