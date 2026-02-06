@@ -229,9 +229,9 @@ const evoTagStyle = {
 }
 
 .panel {
-  /* width: min(1440px, 100%); */
-  width: 1440px;
-  min-width: 100%;
+  width: 980px;
+  /* width: var(--container-w); */
+  /* min-width: 100%; */
   max-width: 1440px;
   border-radius: calc(var(--ds-radius-xl));
   border: 1px solid var(--ds-card-border);
