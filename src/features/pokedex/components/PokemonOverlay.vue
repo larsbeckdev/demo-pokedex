@@ -1,14 +1,17 @@
 <template>
   <teleport to="body">
     <div v-if="open" class="overlay" @click.self="$emit('close')">
-      <div class="panel" role="dialog" aria-modal="true">
+      <div
+        class="panel"
+        role="dialog"
+        aria-modal="true"
+        :style="{ background: panelBg }">
         <div class="head">
           <div class="title">
             <div class="name">{{ displayName }}</div>
             <div class="id">#{{ pokemon?.id }}</div>
           </div>
 
-          <!-- repositioned: header actions are now icon-only + close -->
           <div class="headActions">
             <n-button quaternary class="iconBtn" @click="$emit('prev')">
               <ChevronLeft :size="18" />
@@ -58,7 +61,6 @@
 
             <n-divider />
 
-            <!-- repositioned: evo header row + icon -->
             <div class="evoHead">
               <n-h3 style="margin: 0">Evolution</n-h3>
               <n-button size="small" :loading="loadingEvo" @click="loadEvo">
@@ -191,6 +193,25 @@ const typeColor: Record<PokemonTypeName, string> = {
   fairy: "#F48FB1",
 };
 
+const primaryType = computed(() => {
+  return props.pokemon?.types?.[0]?.type?.name as PokemonTypeName | undefined;
+});
+
+const panelBg = computed(() => {
+  // exakt wie bei der Card – nur Panel-Fallback
+  const fallbackTo = "var(--ds-card-gradient-to)";
+  const basePanel = "var(--ds-panel-bg)";
+
+  const t = primaryType.value;
+  if (!t) {
+    // leichter wash, damit panel-bg trotzdem durchscheint
+    return `linear-gradient(135deg, rgba(255,255,255,0.06), ${fallbackTo}), ${basePanel}`;
+  }
+
+  const c = typeColor[t];
+  return `linear-gradient(135deg, ${c}55, ${fallbackTo}), ${basePanel}`;
+});
+
 function tagStyle(type: PokemonTypeName) {
   const c = typeColor[type];
 
@@ -224,22 +245,18 @@ const evoTagStyle = {
   backdrop-filter: blur(8px);
   z-index: 9998;
 
-  /* Center */
   display: grid;
   place-items: center;
-
-  /* Abstand zum Rand */
   padding: var(--ds-space-lg);
 }
 
 .panel {
-  /* wichtig: nicht 100% erzwingen */
   width: min(980px, 100%);
   max-width: 980px;
 
   border-radius: calc(var(--ds-radius-xl));
   border: 1px solid var(--ds-card-border);
-  background: var(--ds-panel-bg);
+  /* background kommt jetzt per :style (panelBg) */
   box-shadow: var(--ds-shadow-md);
   overflow: hidden;
 }
@@ -251,6 +268,10 @@ const evoTagStyle = {
   gap: var(--ds-space-md);
   padding: var(--ds-space-md) var(--ds-space-md);
   border-bottom: 1px solid var(--ds-border);
+
+  /* damit der Header nicht “transparent” im Gradient verschwindet */
+  background: color-mix(in srgb, var(--ds-panel-bg) 72%, transparent);
+  backdrop-filter: blur(6px);
 }
 
 .title {
@@ -270,7 +291,6 @@ const evoTagStyle = {
   color: var(--ds-text-muted);
 }
 
-/* NEW: header action layout */
 .headActions {
   display: flex;
   align-items: center;
@@ -342,7 +362,6 @@ const evoTagStyle = {
   color: var(--ds-text-muted);
 }
 
-/* NEW: evo header row */
 .evoHead {
   display: flex;
   align-items: center;
@@ -369,7 +388,6 @@ const evoTagStyle = {
     height: 180px;
   }
 
-  /* mobile: icon-only close */
   .closeLabel {
     display: none;
   }
