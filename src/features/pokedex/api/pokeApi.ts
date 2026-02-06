@@ -4,7 +4,7 @@ import type {
   PokemonSpecies,
   EvolutionChain,
   PokemonTypeName,
-} from "@/features/types/pokemon";
+} from "@/features/pokedex/types/pokemon";
 import { withCache } from "../cache/cache";
 import { cacheKeys } from "../cache/keys";
 
