@@ -267,10 +267,10 @@ const evoTagStyle = {
   align-items: center;
   gap: var(--ds-space-md);
   padding: var(--ds-space-md) var(--ds-space-md);
-  border-bottom: 1px solid var(--ds-border);
+  /* border-bottom: 1px solid var(--ds-border); */
 
   /* damit der Header nicht “transparent” im Gradient verschwindet */
-  background: color-mix(in srgb, var(--ds-panel-bg) 72%, transparent);
+  /* background: color-mix(in srgb, var(--ds-panel-bg) 72%, transparent); */
   backdrop-filter: blur(6px);
 }
 
