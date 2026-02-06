@@ -67,9 +67,12 @@ const typeColor: Record<PokemonTypeName, string> = {
 
 const bg = computed(() => {
   const t = type.value;
-  if (!t) return "rgba(255,255,255,0.06)";
+  // fallback aus DS, statt hardcoded
+  const fallbackTo = "var(--ds-card-gradient-to)";
+  if (!t)
+    return `linear-gradient(135deg, rgba(255,255,255,0.06), ${fallbackTo})`;
   const c = typeColor[t];
-  return `linear-gradient(135deg, ${c}55, rgba(255,255,255,0.06))`;
+  return `linear-gradient(135deg, ${c}55, ${fallbackTo})`;
 });
 </script>
 
