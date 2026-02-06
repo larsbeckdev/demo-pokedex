@@ -76,7 +76,7 @@ const bg = computed(() => {
 <style scoped>
 .card {
   border-radius: 14px;
-  padding: 14px;
+  padding: 16px;
   cursor: pointer;
   border: 1px solid rgba(255, 255, 255, 0.12);
   transition:
