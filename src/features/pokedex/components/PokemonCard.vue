@@ -13,7 +13,12 @@
     </div>
 
     <n-space size="small">
-      <n-tag v-for="t in pokemon.types" :key="t.type.name" size="small" round="true">
+      <n-tag
+        v-for="t in pokemon.types"
+        :key="t.type.name"
+        size="small"
+        round
+        :style="tagStyle(t.type.name as PokemonTypeName)">
         {{ t.type.name }}
       </n-tag>
     </n-space>
@@ -39,6 +44,20 @@ const img = computed(() => {
     ""
   );
 });
+
+function tagStyle(type: PokemonTypeName) {
+  const c = typeColor[type];
+
+  return {
+    backgroundColor: `color-mix(in srgb, ${c} 18%, var(--ds-type-chip-bg))`,
+    border: `1px solid color-mix(in srgb, ${c} 35%, var(--ds-type-chip-border))`,
+    color: "var(--ds-text)",
+    borderRadius: "var(--ds-radius-pill)",
+    fontSize: "var(--ds-font-size-sm)",
+    fontWeight: "var(--ds-font-weight-semibold)",
+    padding: "2px 10px",
+  };
+}
 
 const type = computed(
   () => props.pokemon.types[0]?.type.name as PokemonTypeName | undefined,
