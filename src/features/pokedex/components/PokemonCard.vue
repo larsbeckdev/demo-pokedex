@@ -13,7 +13,7 @@
     </div>
 
     <n-space size="small">
-      <n-tag v-for="t in pokemon.types" :key="t.type.name" size="small" >
+      <n-tag v-for="t in pokemon.types" :key="t.type.name" size="small" round="true">
         {{ t.type.name }}
       </n-tag>
     </n-space>
