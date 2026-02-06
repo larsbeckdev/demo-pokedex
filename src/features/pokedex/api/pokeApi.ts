@@ -1,4 +1,4 @@
-import { getCached, setCached } from "@/features/pokedex/cache/resourceCache";
+import { getOrCreate } from "@/features/pokedex/cache/resourceCache";
 
 const BASE = "https://pokeapi.co/api/v2";
 const TTL = {
@@ -10,15 +10,15 @@ const TTL = {
 };
 
 async function fetchJson<T>(url: string, ttlMs: number): Promise<T> {
-  const cached = getCached<T>(url);
-  if (cached) return cached;
-
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
-  const data = (await res.json()) as T;
-
-  setCached(url, data, ttlMs);
-  return data;
+  return getOrCreate<T>(
+    url,
+    async () => {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+      return (await res.json()) as T;
+    },
+    ttlMs,
+  );
 }
 
 export function getPokemonPage(limit: number, offset: number) {
