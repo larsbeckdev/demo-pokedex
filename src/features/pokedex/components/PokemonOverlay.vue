@@ -144,20 +144,20 @@ async function loadEvo() {
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
+  background: var(--ds-overlay);
   backdrop-filter: blur(8px);
   z-index: 9998;
   display: grid;
   place-content: center;
-  padding: 16px;
+  padding: var(--ds-space-lg);
 }
 
 .panel {
   width: min(980px, 100%);
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(20, 20, 20, 0.85);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  border-radius: calc(var(--ds-radius-xl));
+  border: 1px solid var(--ds-card-border);
+  background: var(--ds-panel-bg);
+  box-shadow: var(--ds-shadow-md);
   overflow: hidden;
 }
 
@@ -165,33 +165,38 @@ async function loadEvo() {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
-  padding: 14px 14px;
+  gap: var(--ds-space-md);
+  padding: var(--ds-space-md) var(--ds-space-md);
+  border-bottom: 1px solid var(--ds-border);
 }
 
 .title {
   display: grid;
   gap: 2px;
 }
+
 .name {
-  font-weight: 900;
-  font-size: 20px;
+  font-weight: var(--ds-font-weight-black);
+  font-size: var(--ds-font-size-xl);
+  color: var(--ds-text);
 }
+
 .id {
   opacity: 0.7;
-  font-size: 12px;
+  font-size: var(--ds-font-size-sm);
+  color: var(--ds-text-muted);
 }
 
 .body {
-  padding: 14px;
+  padding: var(--ds-space-md);
   display: grid;
   grid-template-columns: 260px 1fr;
-  gap: 14px;
+  gap: var(--ds-space-md);
 }
 
 .left {
   display: grid;
-  gap: 12px;
+  gap: var(--ds-space-md);
   justify-items: center;
   align-content: start;
 }
@@ -200,37 +205,43 @@ async function loadEvo() {
   width: 220px;
   height: 220px;
   object-fit: contain;
-  filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.55));
+  filter: drop-shadow(var(--ds-img-drop-shadow-strong));
 }
 
 .right {
   min-width: 0;
+  color: var(--ds-text);
 }
 
 .stats {
   display: grid;
-  gap: 10px;
+  gap: var(--ds-space-sm);
 }
+
 .statRow {
   display: grid;
   grid-template-columns: 120px 1fr 40px;
-  gap: 10px;
+  gap: var(--ds-space-sm);
   align-items: center;
 }
+
 .statName {
   text-transform: lowercase;
   opacity: 0.9;
+  color: var(--ds-text-muted);
 }
+
 .statVal {
   text-align: right;
   opacity: 0.85;
+  color: var(--ds-text-muted);
 }
 
 .evo {
-  margin-top: 10px;
+  margin-top: var(--ds-space-sm);
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--ds-space-xs);
 }
 
 @media (max-width: 720px) {
