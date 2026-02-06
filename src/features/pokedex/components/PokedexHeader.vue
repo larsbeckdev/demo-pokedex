@@ -80,7 +80,7 @@ const typeOptions = computed(() =>
 }
 
 .headerCard {
-  padding: 20px 24px;
+  padding: 20px 0px;
   border-radius: 14px;
   background: var(--n-color);
   border: 1px solid var(--n-border-color);
