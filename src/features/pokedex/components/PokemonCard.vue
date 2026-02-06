@@ -78,46 +78,54 @@ const bg = computed(() => {
 
 <style scoped>
 .card {
-  border-radius: 14px;
-  padding: 16px;
+  border-radius: var(--ds-radius-lg);
+  padding: var(--ds-space-lg);
   cursor: pointer;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--ds-card-border);
   transition:
     transform 160ms ease,
     box-shadow 160ms ease,
     border-color 160ms ease;
   min-height: 190px;
   display: grid;
-  gap: 10px;
+  gap: var(--ds-space-sm);
 }
+
 .card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.25);
-  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: var(--ds-card-shadow-hover);
+  border-color: var(--ds-card-border-hover);
 }
+
 .top {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 10px;
+  gap: var(--ds-space-sm);
 }
+
 .name {
-  font-weight: 800;
-  font-size: 18px;
+  font-weight: var(--ds-font-weight-black);
+  font-size: var(--ds-font-size-lg);
+  color: var(--ds-text);
 }
+
 .id {
   opacity: 0.7;
-  font-size: 12px;
+  font-size: var(--ds-font-size-sm);
+  color: var(--ds-text-muted);
 }
+
 .imgWrap {
   display: grid;
   place-content: center;
   height: 92px;
 }
+
 img {
   width: 96px;
   height: 96px;
   object-fit: contain;
-  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.35));
+  filter: drop-shadow(var(--ds-img-drop-shadow));
 }
 </style>
