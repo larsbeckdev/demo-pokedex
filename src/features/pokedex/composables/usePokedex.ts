@@ -1,3 +1,5 @@
+// src/features/pokedex/composables/usePokedex.ts
+
 import { computed, reactive, ref } from "vue";
 import {
   getPokemon,
@@ -6,6 +8,7 @@ import {
   getTypes,
   getEvolutionChainByUrl,
 } from "@/features/pokedex/api/pokeApi";
+import { getCached, setCached } from "@/features/pokedex/cache/resourceCache";
 
 type Pokemon = {
   id: number;
@@ -14,6 +17,15 @@ type Pokemon = {
   sprite: string;
   stats: Record<string, number>;
 };
+
+type PdxState = {
+  all: Pokemon[];
+  offset: number;
+  types: string[];
+};
+
+const STATE_KEY = "pdx_state:v1";
+const STATE_TTL = 24 * 60 * 60_000; // 24h
 
 function cap(s: string) {
   return s ? s[0].toUpperCase() + s.slice(1) : s;
@@ -52,6 +64,27 @@ function toPokemon(dto: any): Pokemon {
       "",
     stats,
   };
+}
+
+function loadState(): PdxState | null {
+  return getCached<PdxState>(STATE_KEY);
+}
+
+function saveState(all: Pokemon[], offset: number, types: string[]) {
+  // wichtig: in reactive arrays nicht direkt speichern, sondern plain copy
+  setCached<PdxState>(
+    STATE_KEY,
+    {
+      all: all.map((p) => ({
+        ...p,
+        stats: { ...p.stats },
+        types: [...p.types],
+      })),
+      offset,
+      types: [...types],
+    },
+    STATE_TTL,
+  );
 }
 
 export function usePokedex() {
@@ -93,14 +126,19 @@ export function usePokedex() {
     const res = await getTypes();
     const names = res.results.map((r) => r.name);
     types.value = names.filter((n) => !["unknown", "shadow"].includes(n));
+    saveState(all, offset.value, types.value);
   }
 
   async function loadNextPage() {
+    if (isLoadingMore.value) return;
+
     isLoadingMore.value = true;
     error.value = null;
 
     try {
       const page = await getPokemonPage(pageSize, offset.value);
+
+      // parallelisierung ja, aber dank getOrCreate() keine Doppel-Fetches pro URL
       const details = await pMapLimit(page.results, 6, async (r) => {
         const dto = await getPokemon(r.name);
         return toPokemon(dto);
@@ -108,6 +146,8 @@ export function usePokedex() {
 
       all.push(...details);
       offset.value += pageSize;
+
+      saveState(all, offset.value, types.value);
     } catch (e: any) {
       error.value = e?.message || "Failed to load Pokémon.";
     } finally {
@@ -117,6 +157,16 @@ export function usePokedex() {
 
   async function boot() {
     try {
+      // ✅ zuerst local state
+      const st = loadState();
+      if (st && st.all?.length) {
+        all.splice(0, all.length, ...st.all);
+        offset.value = st.offset ?? st.all.length;
+        types.value = st.types ?? [];
+        return;
+      }
+
+      // sonst normal
       await loadTypes();
       await loadNextPage();
     } finally {
@@ -135,7 +185,10 @@ export function usePokedex() {
       const dto = await getPokemon(q);
       const p = toPokemon(dto);
       const exists = all.some((x) => x.id === p.id);
-      if (!exists) all.unshift(p);
+      if (!exists) {
+        all.unshift(p);
+        saveState(all, offset.value, types.value);
+      }
       openOverlay(p.id);
     } catch {
       error.value = "No Pokémon found.";
