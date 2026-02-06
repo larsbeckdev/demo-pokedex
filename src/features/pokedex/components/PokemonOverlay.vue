@@ -229,7 +229,7 @@ const evoTagStyle = {
 }
 
 .panel {
-  /* width: min(980px, 100%); */
+  width: min(1px, 100%);
   /* width: 1440px; */
   min-width: 100%;
   max-width: 1440px;
