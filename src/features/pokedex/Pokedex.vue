@@ -57,6 +57,11 @@ import TypeFilter from "@/features/pokedex/components/TypeFilter.vue";
 
 useHead({ title: "Pokédex" });
 
+import { getCached, setCached } from "@/features/pokedex/cache/resourceCache";
+
+const STATE_KEY = "pdx_state:v1";
+const STATE_TTL = 24 * 60 * 60_000; // z.B. 24h
+
 const {
   types,
   filtered,
