@@ -1,31 +1,43 @@
 <template>
   <n-space vertical size="large" class="wrap">
-    <n-space align="center" justify="space-between" class="top">
-  
+    <!-- Header Card -->
+    <div class="headerCard">
+      <!-- Top Row -->
+      <div class="topRow">
+        <div class="titleWrap">
+          <h2 class="title">Pokédex</h2>
+          <span class="subtitle">Search and filter Pokémon</span>
+        </div>
 
-      <n-space align="center" class="searchRow">
-        <n-input
-          v-model:value="queryModel"
+        <n-space align="center" class="searchRow">
+          <n-input
+            v-model:value="queryModel"
+            clearable
+            placeholder="Name or ID (min. 3 chars)"
+            class="searchInput" />
+          <n-button
+            type="primary"
+            :disabled="!canSearch"
+            @click="$emit('search')">
+            Search
+          </n-button>
+        </n-space>
+      </div>
+
+      <!-- Filters -->
+      <div class="filterRow">
+        <n-select
+          v-model:value="typesModel"
+          multiple
+          filterable
           clearable
-          placeholder="Search by name or ID (min. 3 chars)"
-          style="width: 280px" />
-        <n-button :disabled="!canSearch" @click="$emit('search')">
-          Search
-        </n-button>
-      </n-space>
-    </n-space>
+          placeholder="Filter by type"
+          :options="typeOptions"
+          class="typeSelect" />
 
-    <n-space align="center" justify="space-between" class="filters">
-      <n-select
-        v-model:value="typesModel"
-        multiple
-        filterable
-        clearable
-        placeholder="Filter by type"
-        :options="typeOptions"
-        style="min-width: 280px" />
-      <n-text v-if="noResults" type="warning"> No Pokémon found. </n-text>
-    </n-space>
+        <n-text v-if="noResults" type="warning"> No Pokémon found </n-text>
+      </div>
+    </div>
   </n-space>
 </template>
 
@@ -66,24 +78,64 @@ const typeOptions = computed(() =>
 .wrap {
   width: 100%;
 }
-.top {
-  width: 100%;
+
+.headerCard {
+  padding: 20px 24px;
+  border-radius: 14px;
+  background: var(--n-color);
+  border: 1px solid var(--n-border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
-.logo {
-  width: 36px;
-  height: 36px;
-  border-radius: 999px;
-  display: grid;
-  place-content: center;
-  background: rgba(255, 255, 255, 0.08);
+
+/* Top Row */
+.topRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
 }
+
+.titleWrap {
+  display: flex;
+  flex-direction: column;
+}
+
+.title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.subtitle {
+  font-size: 13px;
+  opacity: 0.65;
+}
+
+/* Search */
 .searchRow {
+  display: flex;
+  gap: 10px;
   flex-wrap: wrap;
-  justify-content: flex-end;
 }
-.filters {
-  width: 100%;
-  flex-wrap: wrap;
+
+.searchInput {
+  width: 260px;
+}
+
+/* Filters */
+.filterRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 12px;
+  flex-wrap: wrap;
+}
+
+.typeSelect {
+  min-width: 260px;
 }
 </style>
