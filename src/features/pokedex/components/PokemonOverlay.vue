@@ -8,11 +8,21 @@
             <div class="id">#{{ pokemon?.id }}</div>
           </div>
 
-          <n-space align="center">
-            <n-button quaternary @click="$emit('prev')">←</n-button>
-            <n-button quaternary @click="$emit('next')">→</n-button>
-            <n-button secondary @click="$emit('close')">Close</n-button>
-          </n-space>
+          <!-- repositioned: header actions are now icon-only + close -->
+          <div class="headActions">
+            <n-button quaternary class="iconBtn" @click="$emit('prev')">
+              <ChevronLeft :size="18" />
+            </n-button>
+
+            <n-button quaternary class="iconBtn" @click="$emit('next')">
+              <ChevronRight :size="18" />
+            </n-button>
+
+            <n-button secondary class="closeBtn" @click="$emit('close')">
+              <X :size="18" />
+              <span class="closeLabel">Close</span>
+            </n-button>
+          </div>
         </div>
 
         <div class="body" v-if="pokemon">
@@ -48,12 +58,14 @@
 
             <n-divider />
 
-            <n-space align="center" justify="space-between">
+            <!-- repositioned: evo header row + icon -->
+            <div class="evoHead">
               <n-h3 style="margin: 0">Evolution</n-h3>
               <n-button size="small" :loading="loadingEvo" @click="loadEvo">
-                Load evolution
+                <GitBranch :size="16" />
+                <span>Load</span>
               </n-button>
-            </n-space>
+            </div>
 
             <div class="evo" v-if="evoNames.length">
               <n-tag
@@ -85,12 +97,15 @@ import type {
 } from "../types/pokemon";
 import { fetchEvolutionChainByUrl, fetchSpecies } from "../api/pokeApi";
 
+// lucide icons
+import { ChevronLeft, ChevronRight, X, GitBranch } from "lucide-vue-next";
+
 const props = defineProps<{
   open: boolean;
   pokemon: PokemonDetail | null;
 }>();
 
-const emit = defineEmits<{
+defineEmits<{
   (e: "close"): void;
   (e: "next"): void;
   (e: "prev"): void;
@@ -248,6 +263,28 @@ const evoTagStyle = {
   color: var(--ds-text-muted);
 }
 
+/* NEW: header action layout */
+.headActions {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-space-xs);
+}
+
+.iconBtn {
+  padding: 0 10px;
+  min-width: 40px;
+}
+
+.closeBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.closeLabel {
+  display: inline;
+}
+
 .body {
   padding: var(--ds-space-md);
   display: grid;
@@ -298,6 +335,14 @@ const evoTagStyle = {
   color: var(--ds-text-muted);
 }
 
+/* NEW: evo header row */
+.evoHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ds-space-sm);
+}
+
 .evo {
   margin-top: var(--ds-space-sm);
   display: flex;
@@ -315,6 +360,15 @@ const evoTagStyle = {
   .left img {
     width: 180px;
     height: 180px;
+  }
+
+  /* mobile: icon-only close */
+  .closeLabel {
+    display: none;
+  }
+  .closeBtn {
+    padding: 0 10px;
+    min-width: 40px;
   }
 }
 </style>
