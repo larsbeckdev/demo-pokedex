@@ -23,7 +23,7 @@
 
             <n-button secondary class="closeBtn" @click="$emit('close')">
               <X :size="18" />
-              <span class="closeLabel">Close</span>
+              <!-- <span class="closeLabel"></span> -->
             </n-button>
           </div>
         </div>
