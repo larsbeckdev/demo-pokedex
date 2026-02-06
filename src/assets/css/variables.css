@@ -198,5 +198,30 @@ html.dark {
   --ring: oklch(0.78 0.16 60);
 
   --destructive: oklch(0.6 0.22 25);
+
+    /* =========================
+   * Extra UI Ebenen (Dark)
+   * ========================= */
+
+  --text: var(--foreground);
+  --text-muted: var(--muted-foreground);
+  --text-disabled: oklch(0.52 0.02 260);
+
+  --card-elevated: oklch(0.24 0.02 260); /* etwas heller als card */
+
+  --overlay: rgba(0, 0, 0, 0.55);
+  --panel: rgba(20, 20, 23, 0.88);
+
+  --chip: rgba(255, 255, 255, 0.06);
+  --chip-border: rgba(255, 255, 255, 0.10);
+
+  --card-gradient-to: rgba(255, 255, 255, 0.06);
+
+  --ring-rgba: rgba(249, 115, 22, 0.45);
+
+  --shadow-sm-t: 0 10px 28px rgba(0, 0, 0, 0.35);
+  --shadow-md-t: 0 20px 60px rgba(0, 0, 0, 0.45);
+  --shadow-lg-t: 0 30px 90px rgba(0, 0, 0, 0.55);
+
 }
 
