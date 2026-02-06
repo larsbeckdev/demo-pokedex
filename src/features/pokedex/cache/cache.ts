@@ -26,7 +26,6 @@ export function setCache<T>(key: string, value: T, ttlMs: number) {
   try {
     localStorage.setItem(key, JSON.stringify(entry));
   } catch {
-    // ignore quota errors
   }
 }
 
