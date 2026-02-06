@@ -13,7 +13,7 @@
   inset: 0;
   display: grid;
   place-content: center;
-  gap: 16px;
+  gap: var(--ds-space-lg);
 
   background: var(--ds-overlay);
   backdrop-filter: blur(6px);
@@ -23,11 +23,11 @@
 .ball {
   width: 96px;
   height: 96px;
-  border-radius: 999px;
+  border-radius: var(--ds-radius-pill);
   background: linear-gradient(#e53935 0 48%, #111 48% 52%, #f5f5f5 52% 100%);
   position: relative;
   animation: wobble 900ms ease-in-out infinite;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--ds-shadow-sm);
 }
 
 .ball::before {
