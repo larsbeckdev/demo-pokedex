@@ -1,13 +1,13 @@
 <template>
   <n-space vertical size="large" class="wrap">
     <n-space align="center" justify="space-between" class="top">
-      <n-space align="center" :wrap="false">
+      <!-- <n-space align="center" :wrap="false">
         <div class="logo">⬤</div>
         <div>
           <n-h2 style="margin: 0">Pokédex</n-h2>
           <n-text depth="3">Search + Type Filters + Cache</n-text>
         </div>
-      </n-space>
+      </n-space> -->
 
       <n-space align="center" class="searchRow">
         <n-input
