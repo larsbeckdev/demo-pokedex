@@ -19,7 +19,12 @@
           <div class="left">
             <img :src="img" :alt="displayName" />
             <n-space size="small">
-              <n-tag v-for="t in pokemon.types" :key="t.type.name" size="small">
+              <n-tag
+                v-for="t in pokemon.types"
+                :key="t.type.name"
+                size="small"
+                round
+                :style="tagStyle(t.type.name as PokemonTypeName)">
                 {{ t.type.name }}
               </n-tag>
             </n-space>
@@ -66,7 +71,11 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, watch, ref } from "vue";
-import type { EvolutionChain, PokemonDetail } from "../types/pokemon";
+import type {
+  EvolutionChain,
+  PokemonDetail,
+  PokemonTypeName,
+} from "../types/pokemon";
 import { fetchEvolutionChainByUrl, fetchSpecies } from "../api/pokeApi";
 
 const props = defineProps<{
@@ -138,6 +147,51 @@ async function loadEvo() {
     loadingEvo.value = false;
   }
 }
+
+const typeColor: Record<PokemonTypeName, string> = {
+  normal: "#9E9E9E",
+  fire: "#FF7043",
+  water: "#42A5F5",
+  electric: "#FFCA28",
+  grass: "#66BB6A",
+  ice: "#4DD0E1",
+  fighting: "#EF5350",
+  poison: "#AB47BC",
+  ground: "#A1887F",
+  flying: "#90A4AE",
+  psychic: "#EC407A",
+  bug: "#9CCC65",
+  rock: "#8D6E63",
+  ghost: "#7E57C2",
+  dragon: "#5C6BC0",
+  dark: "#616161",
+  steel: "#78909C",
+  fairy: "#F48FB1",
+};
+
+function tagStyle(type: PokemonTypeName) {
+  const c = typeColor[type];
+
+  return {
+    backgroundColor: `color-mix(in srgb, ${c} 18%, var(--ds-type-chip-bg))`,
+    border: `1px solid color-mix(in srgb, ${c} 35%, var(--ds-type-chip-border))`,
+    color: "var(--ds-text)",
+    borderRadius: "var(--ds-radius-pill)",
+    fontSize: "var(--ds-font-size-sm)",
+    fontWeight: "var(--ds-font-weight-semibold)",
+    padding: "2px 10px",
+  } as const;
+}
+
+const evoTagStyle = {
+  backgroundColor: "var(--ds-type-chip-bg)",
+  border: "1px solid var(--ds-type-chip-border)",
+  color: "var(--ds-text)",
+  borderRadius: "var(--ds-radius-pill)",
+  fontSize: "var(--ds-font-size-sm)",
+  fontWeight: "var(--ds-font-weight-semibold)",
+  padding: "2px 10px",
+} as const;
 </script>
 
 <style scoped>
