@@ -6,6 +6,10 @@ export const tokensLight = {
   },
 
   font: {
+    familyBody:
+      '"Geist Variable", system-ui, -apple-system, Segoe UI, Roboto, sans-serif',
+    familyHeading:
+      '"Geist Variable", system-ui, -apple-system, Segoe UI, Roboto, sans-serif',
     weightSemibold: "600",
   },
 

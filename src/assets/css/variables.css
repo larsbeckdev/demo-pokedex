@@ -1,227 +1,88 @@
-/* =========================
-   Theme Variables
-========================= */
+/* variables.css */
+
+/* -------------------------------------------------
+   Base / layout (statisch)
+------------------------------------------------- */
 :root {
-  /* Font */
-  --font-body: "Geist Variable", sans-serif;
-  --font-heading: "Geist Variable", sans-serif;
+  /* Fonts */
+  --font-body: "Geist Variable", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  --font-heading: "Geist Variable", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
 
   /* Layout */
   --padding: 1rem;
   --max-width-layout: 1040px;
   --max-width-container: 1040px;
 
-  --radius: 0.625rem;
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  /* Radii (Default-Fallbacks, werden aus Tokens überschrieben) */
+  --ds-radius-sm: 8px;
+  --ds-radius-md: 10px;
+  --ds-radius-lg: 14px;
 
-   /* =========================
-   * Alias-Variablen (deine vorhandene Struktur)
-   * ========================= */
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  /* Font weights */
+  --ds-font-weight-semibold: 600;
 
-  --color-background-header: var(--background-header);
-  --color-background-footer: var(--background-footer);
+  /* -----------------------------------------------
+     DS (Design System) – Fallbacks
+     Werden in TS per applyTokens() gesetzt!
+  ----------------------------------------------- */
+  --ds-primary: #f97316;
+  --ds-primary-hover: #fb923c;
+  --ds-primary-pressed: #ea580c;
 
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
+  --ds-text: #020617;
+  --ds-text-muted: #334155;
+  --ds-text-disabled: #64748b;
 
-  --color-button: var(--button);
-  --color-button-foreground: var(--button-foreground);
+  --ds-bg: #f1f5f9;
+  --ds-card: #ffffff;
+  --ds-card-elevated: #e5e7eb;
 
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
+  --ds-border: #cbd5e1;
+  --ds-border-strong: #94a3b8;
 
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
+  --ds-overlay: rgba(2, 6, 23, 0.4);
+  --ds-panel: rgba(255, 255, 255, 0.92);
+  --ds-focus-ring: rgba(249, 115, 22, 0.35);
 
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
+  --ds-chip: rgba(2, 6, 23, 0.04);
+  --ds-chip-border: rgba(2, 6, 23, 0.10);
 
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
+  --ds-shadow-sm: 0 10px 28px rgba(2, 6, 23, 0.10);
+  --ds-shadow-md: 0 20px 60px rgba(2, 6, 23, 0.16);
 
-  --comments-background: var(--comments-background);
-  --comments-foreground: var(--comments-foreground);
+  --ds-card-gradient-to: rgba(2, 6, 23, 0.04);
 
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
+  /* -----------------------------------------------
+     Alias-Variablen (kompatibel zu deinem System)
+     Alles zeigt auf DS-Variablen
+  ----------------------------------------------- */
+  --color-background: var(--ds-bg);
+  --color-foreground: var(--ds-text);
 
-  --color-destructive: var(--destructive);
+  --color-card: var(--ds-card);
+  --color-card-foreground: var(--ds-text);
 
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
+  --color-primary: var(--ds-primary);
+  --color-primary-foreground: var(--ds-text);
 
+  --color-muted: var(--ds-chip);
+  --color-muted-foreground: var(--ds-text-muted);
 
-  --color-overlay: var(--overlay);
-  --color-panel: var(--panel);
+  --color-border: var(--ds-border);
+  --color-ring: var(--ds-focus-ring);
 
-  --color-card-elevated: var(--card-elevated);
-  --color-card-gradient-to: var(--card-gradient-to);
+  --color-overlay: var(--ds-overlay);
+  --color-panel: var(--ds-panel);
 
-  --color-text: var(--text);
-  --color-text-muted: var(--text-muted);
-  --color-text-disabled: var(--text-disabled);
+  --color-card-elevated: var(--ds-card-elevated);
+  --color-card-gradient-to: var(--ds-card-gradient-to);
 
-  --color-chip: var(--chip);
-  --color-chip-border: var(--chip-border);
-
-  --shadow-sm: var(--shadow-sm-t);
-  --shadow-md: var(--shadow-md-t);
-  --shadow-lg: var(--shadow-lg-t);
-
-  /* EXTRA */
-
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.08);
-
-  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.12);
-
-  --shadow-md: 
-    0 4px 12px rgba(0, 0, 0, 0.14),
-    0 2px 4px rgba(0, 0, 0, 0.08);
-
-  --shadow-lg:
-    0 10px 30px rgba(0, 0, 0, 0.18),
-    0 4px 10px rgba(0, 0, 0, 0.12);
-
-  --shadow-xl:
-    0 20px 50px rgba(0, 0, 0, 0.25),
-    0 8px 20px rgba(0, 0, 0, 0.15);
-
+  --shadow-sm: var(--ds-shadow-sm);
+  --shadow-md: var(--ds-shadow-md);
 }
 
-:root {
-  --background: oklch(0.985 0.006 240);
-  --background-header: rgba(240, 246, 250, 0.3);
-  --background-footer: oklch(0.97 0.008 240);
-
-  --foreground: oklch(0.17 0.02 255);
-  --muted-foreground: oklch(0.45 0.02 255);
-
-  --card: oklch(0.995 0.003 240);
-  --card-foreground: oklch(0.17 0.02 255);
-
-  --button: rgba(255, 255, 255, 0.5);
-  --button-foreground: oklch(0.17 0.02 255);
-
-  --popover: oklch(0.995 0.003 240);
-  --popover-foreground: oklch(0.17 0.02 255);
-
-  /* 🔥 Primary – Firebase Style */
-  --primary: oklch(0.82 0.15 70);          /* warmes Orange-Gelb */
-  --primary-foreground: oklch(0.16 0.02 260);
-
-  --secondary: oklch(0.93 0.02 230);
-  --secondary-foreground: oklch(0.22 0.02 255);
-
-  --accent: oklch(0.9 0.05 200);
-  --accent-foreground: oklch(0.22 0.02 255);
-
-  --border: oklch(0.88 0.01 255);
-  --input: rgba(211, 216, 222, 0.23);
-
-  /* 🎯 Fokus / Glow */
-  --ring: oklch(0.82 0.15 70);
-
-  --destructive: oklch(0.58 0.22 25);
-
-
-    /* =========================
-   * Extra UI Ebenen
-   * ========================= */
-
-  /* Text Stufen (dein System nutzt foreground + muted-foreground,
-     aber Komponenten brauchen oft "base/muted/disabled") */
-  --text: var(--foreground);
-  --text-muted: var(--muted-foreground);
-  --text-disabled: oklch(0.55 0.02 255); /* etwas heller als muted-foreground */
-
-  /* Card Hover / Active Fläche */
-  --card-elevated: oklch(0.97 0.008 240); /* subtil: passt zu background-footer */
-
-  /* Overlay / Panel */
-  --overlay: rgba(2, 6, 23, 0.40);        /* ink overlay statt schwarz */
-  --panel: rgba(255, 255, 255, 0.92);     /* light panel */
-
-  /* Chips / Tags */
-  --chip: oklch(0.98 0.006 240);          /* very light surface */
-  --chip-border: oklch(0.86 0.01 255);    /* ähnlich border, minimal stärker */
-
-  /* Gradient-Ziel (für PokemonCard bg) */
-  --card-gradient-to: rgba(2, 6, 23, 0.04);
-
-  /* Fokus Ring (du hast ring bereits, aber oft als rgba schöner) */
-  --ring-rgba: rgba(249, 115, 22, 0.35);
-
-  /* Token-Shadows (light) */
-  --shadow-sm-t: 0 10px 28px rgba(2, 6, 23, 0.10);
-  --shadow-md-t: 0 20px 60px rgba(2, 6, 23, 0.16);
-  --shadow-lg-t: 0 30px 90px rgba(2, 6, 23, 0.18);
-
-}
-
+/* Dark Mode nur als Marker-Klasse.
+   Werte kommen ebenfalls aus applyTokens(). */
 html.dark {
-  --background: oklch(0.16 0.02 260);
-  --background-header: rgba(12, 18, 26, 0.35);
-  --background-footer: oklch(0.18 0.02 260);
-
-  --foreground: oklch(0.93 0.01 95);
-  --muted-foreground: oklch(0.62 0.02 260);
-
-  --card: oklch(0.21 0.02 260);
-  --card-foreground: oklch(0.93 0.01 95);
-
-  --button: rgba(19, 25, 34, 0.45);
-  --button-foreground: oklch(0.93 0.01 95);
-
-  --popover: oklch(0.21 0.02 260);
-  --popover-foreground: oklch(0.93 0.01 95);
-
-  /* 🔥 Primary – leuchtend, nicht grell */
-  --primary: oklch(0.78 0.16 60);
-  --primary-foreground: oklch(0.14 0.02 260);
-
-  --secondary: oklch(0.28 0.03 250);
-  --secondary-foreground: oklch(0.93 0.01 95);
-
-  --accent: oklch(0.34 0.07 180);
-  --accent-foreground: oklch(0.95 0.01 95);
-
-  --border: oklch(1 0 0 / 14%);
-  --input: rgba(255, 255, 255, 0.09);
-
-  /* ✨ Glow auf Dark */
-  --ring: oklch(0.78 0.16 60);
-
-  --destructive: oklch(0.6 0.22 25);
-
-    /* =========================
-   * Extra UI Ebenen (Dark)
-   * ========================= */
-
-  --text: var(--foreground);
-  --text-muted: var(--muted-foreground);
-  --text-disabled: oklch(0.52 0.02 260);
-
-  --card-elevated: oklch(0.24 0.02 260); /* etwas heller als card */
-
-  --overlay: rgba(0, 0, 0, 0.55);
-  --panel: rgba(20, 20, 23, 0.88);
-
-  --chip: rgba(255, 255, 255, 0.06);
-  --chip-border: rgba(255, 255, 255, 0.10);
-
-  --card-gradient-to: rgba(255, 255, 255, 0.06);
-
-  --ring-rgba: rgba(249, 115, 22, 0.45);
-
-  --shadow-sm-t: 0 10px 28px rgba(0, 0, 0, 0.35);
-  --shadow-md-t: 0 20px 60px rgba(0, 0, 0, 0.45);
-  --shadow-lg-t: 0 30px 90px rgba(0, 0, 0, 0.55);
-
+  /* kein Inhalt nötig */
 }
-
