@@ -1,46 +1,95 @@
 <template>
-  <header class="bar">
-    <div class="brand">
-      <div class="title">Pokédex</div>
-    </div>
+  <n-space vertical size="large" class="wrap">
+    <n-space align="center" justify="space-between" class="top">
+      <n-space align="center" :wrap="false">
+        <div class="logo">⬤</div>
+        <div>
+          <n-h2 style="margin: 0">Pokédex</n-h2>
+          <n-text depth="3">Search + Type Filters + Cache</n-text>
+        </div>
+      </n-space>
 
-    <div class="search">
-      <n-input
-        :value="safeValue"
-        @update:value="onUpdate"
-        placeholder="Search Pokémon (min. 3 chars)…"
-        clearable />
+      <n-space align="center" class="searchRow">
+        <n-input
+          v-model:value="queryModel"
+          clearable
+          placeholder="Search by name or ID (min. 3 chars)"
+          style="width: 280px" />
+        <n-button :disabled="!canSearch" @click="$emit('search')">
+          Search
+        </n-button>
+      </n-space>
+    </n-space>
 
-      <n-button
-        :disabled="safeValue.trim().length < 3 || loading"
-        @click="$emit('search')">
-        Search
-      </n-button>
-    </div>
-
-    <slot />
-  </header>
+    <n-space align="center" justify="space-between" class="filters">
+      <n-select
+        v-model:value="typesModel"
+        multiple
+        filterable
+        clearable
+        placeholder="Filter by type"
+        :options="typeOptions"
+        style="min-width: 280px" />
+      <n-text v-if="noResults" type="warning"> No Pokémon found. </n-text>
+    </n-space>
+  </n-space>
 </template>
 
 <script setup lang="ts">
 import { computed } from "vue";
+import type { PokemonTypeName } from "../types/pokemon";
 
-const props = withDefaults(
-  defineProps<{
-    modelValue?: string; // optional, damit es nicht crasht
-    loading: boolean;
-  }>(),
-  { modelValue: "" },
-);
+const props = defineProps<{
+  query: string;
+  canSearch: boolean;
+  selectedTypes: PokemonTypeName[];
+  allTypes: PokemonTypeName[];
+  noResults: boolean;
+}>();
 
 const emit = defineEmits<{
-  (e: "update:modelValue", v: string): void;
+  (e: "update:query", v: string): void;
+  (e: "update:selectedTypes", v: PokemonTypeName[]): void;
   (e: "search"): void;
 }>();
 
-const safeValue = computed(() => props.modelValue ?? "");
+const queryModel = computed({
+  get: () => props.query,
+  set: (v: string) => emit("update:query", v),
+});
 
-function onUpdate(v: string) {
-  emit("update:modelValue", v ?? "");
-}
+const typesModel = computed({
+  get: () => props.selectedTypes,
+  set: (v: PokemonTypeName[]) => emit("update:selectedTypes", v),
+});
+
+const typeOptions = computed(() =>
+  props.allTypes.map((t) => ({ label: t, value: t })),
+);
 </script>
+
+<style scoped>
+.wrap {
+  width: 100%;
+}
+.top {
+  width: 100%;
+}
+.logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  display: grid;
+  place-content: center;
+  background: rgba(255, 255, 255, 0.08);
+}
+.searchRow {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.filters {
+  width: 100%;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+</style>
