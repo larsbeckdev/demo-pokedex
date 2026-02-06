@@ -46,7 +46,7 @@
 
 .text {
   color: var(--ds-text);
-  font-size: 14px;
+  font-size: var(--ds-font-size-md);
   opacity: 0.9;
   text-align: center;
 }
