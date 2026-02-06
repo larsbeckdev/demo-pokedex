@@ -56,7 +56,14 @@
             </n-space>
 
             <div class="evo" v-if="evoNames.length">
-              <n-tag v-for="n in evoNames" :key="n" size="small">{{ n }}</n-tag>
+              <n-tag
+                v-for="n in evoNames"
+                :key="n"
+                size="small"
+                round
+                :style="evoTagStyle">
+                {{ n }}
+              </n-tag>
             </div>
 
             <n-text v-else depth="3" style="margin-top: 10px">
