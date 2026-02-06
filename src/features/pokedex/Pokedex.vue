@@ -76,7 +76,6 @@ onMounted(init);
   justify-items: center;
 }
 .content {
-  width: min(1440px, 100%);
-  padding: 18px;
+  width: 100%;
 }
 </style>
