@@ -1,159 +1,248 @@
 <template>
-  <n-modal
-    :show="show"
-    preset="card"
-    :mask-closable="true"
-    @mask-click="$emit('close')">
-    <div class="wrap" v-if="pokemon">
-      <div class="head">
-        <n-button quaternary @click="$emit('prev')">←</n-button>
-        <div class="title">
-          {{ pokemon.name }} <span class="id">#{{ pokemon.id }}</span>
+  <teleport to="body">
+    <div v-if="open" class="overlay" @click.self="$emit('close')">
+      <div class="panel" role="dialog" aria-modal="true">
+        <div class="head">
+          <div class="title">
+            <div class="name">{{ displayName }}</div>
+            <div class="id">#{{ pokemon?.id }}</div>
+          </div>
+
+          <n-space align="center">
+            <n-button quaternary @click="$emit('prev')">←</n-button>
+            <n-button quaternary @click="$emit('next')">→</n-button>
+            <n-button secondary @click="$emit('close')">Close</n-button>
+          </n-space>
         </div>
-        <n-button quaternary @click="$emit('next')">→</n-button>
-      </div>
 
-      <div class="grid">
-        <img class="img" :src="pokemon.sprite" :alt="pokemon.name" />
-        <div class="info">
-          <div class="row">
-            <n-tag v-for="t in pokemon.types" :key="t" round>{{ t }}</n-tag>
+        <div class="body" v-if="pokemon">
+          <div class="left">
+            <img :src="img" :alt="displayName" />
+            <n-space size="small">
+              <n-tag v-for="t in pokemon.types" :key="t.type.name" size="small">
+                {{ t.type.name }}
+              </n-tag>
+            </n-space>
           </div>
 
-          <div class="stats">
-            <div v-for="k in keys" :key="k" class="stat">
-              <div class="label">{{ k }}</div>
-              <n-progress type="line" :percentage="pct(pokemon.stats[k])" />
-              <div class="val">{{ pokemon.stats[k] }}</div>
+          <div class="right">
+            <n-h3 style="margin: 0 0 8px">Stats</n-h3>
+            <div class="stats">
+              <div
+                v-for="s in pokemon.stats"
+                :key="s.stat.name"
+                class="statRow">
+                <div class="statName">{{ s.stat.name }}</div>
+                <n-progress
+                  type="line"
+                  :percentage="toPct(s.base_stat)"
+                  :show-indicator="false" />
+                <div class="statVal">{{ s.base_stat }}</div>
+              </div>
             </div>
+
+            <n-divider />
+
+            <n-space align="center" justify="space-between">
+              <n-h3 style="margin: 0">Evolution</n-h3>
+              <n-button size="small" :loading="loadingEvo" @click="loadEvo">
+                Load evolution
+              </n-button>
+            </n-space>
+
+            <div class="evo" v-if="evoNames.length">
+              <n-tag v-for="n in evoNames" :key="n" size="small">{{ n }}</n-tag>
+            </div>
+
+            <n-text v-else depth="3" style="margin-top: 10px">
+              Evolution is lazy-loaded (click button).
+            </n-text>
           </div>
-
-          <n-divider />
-
-          <n-button
-            :loading="evoLoading"
-            :disabled="evoLoading || !!evo"
-            @click="loadEvo">
-            Load evolution chain (lazy)
-          </n-button>
-
-          <pre v-if="evo" class="evo">{{ pretty(evo) }}</pre>
         </div>
       </div>
     </div>
-  </n-modal>
+  </teleport>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onBeforeUnmount, watch, ref } from "vue";
+import type { EvolutionChain, PokemonDetail } from "../types/pokemon";
+import { fetchEvolutionChainByUrl, fetchSpecies } from "../api/pokeApi";
 
 const props = defineProps<{
-  show: boolean;
-  pokemon: any | null;
-  loadEvolution: () => Promise<any>;
+  open: boolean;
+  pokemon: PokemonDetail | null;
 }>();
 
-defineEmits<{ (e: "close"): void; (e: "next"): void; (e: "prev"): void }>();
+const emit = defineEmits<{
+  (e: "close"): void;
+  (e: "next"): void;
+  (e: "prev"): void;
+}>();
 
-const evo = ref<any | null>(null);
-const evoLoading = ref(false);
+const loadingEvo = ref(false);
+const evoNames = ref<string[]>([]);
 
-const keys = [
-  "hp",
-  "attack",
-  "defense",
-  "special-attack",
-  "special-defense",
-  "speed",
-];
+const displayName = computed(() => {
+  const n = props.pokemon?.name ?? "";
+  return n ? n.slice(0, 1).toUpperCase() + n.slice(1) : "";
+});
 
-function pct(v: number) {
-  return Math.min(100, Math.round((v / 200) * 100));
+const img = computed(() => {
+  const p = props.pokemon;
+  if (!p) return "";
+  return (
+    p.sprites.other?.["official-artwork"]?.front_default ||
+    p.sprites.front_default ||
+    ""
+  );
+});
+
+function toPct(v: number) {
+  const capped = Math.min(160, Math.max(0, v));
+  return Math.round((capped / 160) * 100);
 }
 
-function pretty(o: any) {
-  return JSON.stringify(o, null, 2);
+function setBodyLock(lock: boolean) {
+  document.body.style.overflow = lock ? "hidden" : "";
+}
+
+watch(
+  () => props.open,
+  (v) => setBodyLock(v),
+  { immediate: true },
+);
+
+onBeforeUnmount(() => setBodyLock(false));
+
+function collectChainNames(chain: EvolutionChain["chain"]) {
+  const names: string[] = [];
+  let node: any = chain;
+  while (node) {
+    names.push(node.species.name);
+    node = node.evolves_to?.[0];
+  }
+  return names;
 }
 
 async function loadEvo() {
-  evoLoading.value = true;
+  if (!props.pokemon) return;
+  if (loadingEvo.value) return;
+
+  loadingEvo.value = true;
   try {
-    evo.value = await props.loadEvolution();
+    const species = await fetchSpecies(props.pokemon.id);
+    const evo = await fetchEvolutionChainByUrl(species.evolution_chain.url);
+    evoNames.value = collectChainNames(evo.chain);
   } finally {
-    evoLoading.value = false;
+    loadingEvo.value = false;
   }
 }
 </script>
 
 <style scoped>
-.wrap {
-  width: min(920px, 92vw);
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(8px);
+  z-index: 9998;
+  display: grid;
+  place-content: center;
+  padding: 16px;
 }
+
+.panel {
+  width: min(980px, 100%);
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(20, 20, 20, 0.85);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+}
+
 .head {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 14px;
 }
+
 .title {
+  display: grid;
+  gap: 2px;
+}
+.name {
   font-weight: 900;
-  font-size: 18px;
+  font-size: 20px;
 }
 .id {
   opacity: 0.7;
-  font-weight: 800;
-  margin-left: 6px;
+  font-size: 12px;
 }
-.grid {
+
+.body {
+  padding: 14px;
   display: grid;
-  grid-template-columns: 1fr 1.2fr;
+  grid-template-columns: 260px 1fr;
   gap: 14px;
-  margin-top: 10px;
 }
-.img {
-  width: 100%;
-  height: 260px;
+
+.left {
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+  align-content: start;
+}
+
+.left img {
+  width: 220px;
+  height: 220px;
   object-fit: contain;
+  filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.55));
 }
-.row {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-bottom: 12px;
+
+.right {
+  min-width: 0;
 }
+
 .stats {
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: 10px;
 }
-.stat {
+.statRow {
   display: grid;
-  grid-template-columns: 140px 1fr 50px;
+  grid-template-columns: 120px 1fr 40px;
   gap: 10px;
   align-items: center;
 }
-.label {
-  font-weight: 700;
+.statName {
+  text-transform: lowercase;
   opacity: 0.9;
 }
-.val {
+.statVal {
   text-align: right;
-  font-weight: 800;
+  opacity: 0.85;
 }
+
 .evo {
   margin-top: 10px;
-  max-height: 220px;
-  overflow: auto;
-  background: rgba(0, 0, 0, 0.06);
-  padding: 10px;
-  border-radius: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
+
 @media (max-width: 720px) {
-  .grid {
+  .body {
     grid-template-columns: 1fr;
   }
-  .stat {
-    grid-template-columns: 110px 1fr 44px;
+  .statRow {
+    grid-template-columns: 90px 1fr 36px;
+  }
+  .left img {
+    width: 180px;
+    height: 180px;
   }
 }
 </style>
