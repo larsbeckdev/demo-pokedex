@@ -55,7 +55,7 @@ function toPokemon(dto: any): Pokemon {
 }
 
 export function usePokedex() {
-  const pageSize = 30; // 20–40 (✅)
+  const pageSize = 30;
   const offset = ref(0);
 
   const isBootLoading = ref(true);
