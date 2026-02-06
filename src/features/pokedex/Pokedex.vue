@@ -53,9 +53,9 @@
 import { onMounted } from "vue";
 import { NSpace, NButton, NH2, NText, NAlert, NSkeleton } from "naive-ui";
 import { usePokedexStore } from "./store/usePokedexStore";
-import PokedexFilters from "../components/PokedexFilters.vue";
-import PokedexGrid from "../components/PokedexGrid.vue";
-import PokedexDetailDrawer from "../components/PokedexDetailDrawer.vue";
+import PokedexFilters from "./components/PokedexFilters.vue";
+import PokedexGrid from "./components/PokedexGrid.vue";
+import PokedexDetailDrawer from "./components/PokedexDetailDrawer.vue";
 
 const store = usePokedexStore();
 
