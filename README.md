@@ -1,7 +1,25 @@
-# vcard-qr
+### 📟 Pokédex
 
-A small web application to display a digital business card via QR code.  
-Built with **Vite** as the build tool and **Vue 3** for a component-based UI.
+**Category:** Database Pokémon  
+**Type:** ⚙️ Normal / 💾 Tech  
+**Ability:** *Complete Record*  
+**Region:** Digitalia
+
+> **Pokédex Entry:**  
+> Pokédex collects, organizes, and displays information about unknown creatures at high speed.  
+> It automatically updates its records when new data is discovered.  
+> Trainers rely on Pokédex to access structured and reliable knowledge at any time.
+
+**Strengths:**  
+- High data processing capability  
+- Fast access to structured information  
+- Grows stronger with every new entry  
+
+**Weaknesses:**  
+- Becomes ineffective without a data source 📡  
+
+**Special Trait:**  
+The more complete its database, the more powerful Pokédex becomes.
 
 ---
 
