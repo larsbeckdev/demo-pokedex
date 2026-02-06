@@ -14,7 +14,8 @@
   display: grid;
   place-content: center;
   gap: 16px;
-  background: rgba(0, 0, 0, 0.5);
+
+  background: var(--ds-overlay);
   backdrop-filter: blur(6px);
   z-index: 9999;
 }
