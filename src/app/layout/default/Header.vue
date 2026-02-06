@@ -9,7 +9,7 @@ import { Github } from "lucide-vue-next";
     <!-- <LogoSecondary class="h-full" /> -->
     <div class="flex flex-col leading-tight">
       <n-h3 style="margin: 0">Pokédex</n-h3>
-      <n-text depth="3">Search + Type Filters + Cache</n-text>
+      <!-- <n-text depth="3">Search + Type Filters + Cache</n-text> -->
     </div>
   </div>
 
