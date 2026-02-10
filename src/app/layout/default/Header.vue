@@ -6,7 +6,7 @@ import { Github } from "lucide-vue-next";
 
 <template>
   <div class="logo-box flex items-center gap-2">
-    <!-- <LogoSecondary class="h-full" /> -->
+    <LogoSecondary class="h-full" />
     <div class="flex flex-col leading-tight">
       <n-h3 style="margin: 0">Pokédex</n-h3>
       <!-- <n-text depth="3">Search + Type Filters + Cache</n-text> -->

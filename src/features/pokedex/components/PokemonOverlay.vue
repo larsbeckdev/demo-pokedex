@@ -23,7 +23,6 @@
 
             <n-button secondary class="closeBtn" @click="$emit('close')">
               <X :size="18" />
-              <!-- <span class="closeLabel"></span> -->
             </n-button>
           </div>
         </div>
@@ -198,13 +197,11 @@ const primaryType = computed(() => {
 });
 
 const panelBg = computed(() => {
-  // exakt wie bei der Card – nur Panel-Fallback
   const fallbackTo = "var(--ds-card-gradient-to)";
   const basePanel = "var(--ds-panel-bg)";
 
   const t = primaryType.value;
   if (!t) {
-    // leichter wash, damit panel-bg trotzdem durchscheint
     return `linear-gradient(135deg, rgba(255,255,255,0.06), ${fallbackTo}), ${basePanel}`;
   }
 

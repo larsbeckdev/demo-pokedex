@@ -1,25 +1,25 @@
 <template>
   <n-space vertical size="large" class="wrap">
-    <!-- Header Card -->
     <div class="headerCard">
-      <!-- Top Row -->
       <div class="topRow">
         <n-space align="center" class="searchRow">
           <n-input
-            v-model:value="queryModel"
+            v-model:value="draftQuery"
             clearable
-            placeholder="Name or ID (min. 3 chars)"
-            class="searchInput" />
+            placeholder="Name (min. 3) oder ID (min. 1)"
+            class="searchInput"
+            @keyup.enter="onSearch"
+            @clear="onClear" />
+
           <n-button
             type="primary"
-            :disabled="!canSearch"
-            @click="$emit('search')">
+            :disabled="!canSearchLocal"
+            @click="onSearch">
             Search
           </n-button>
         </n-space>
       </div>
 
-      <!-- Filters -->
       <div class="filterRow">
         <n-select
           v-model:value="typesModel"
@@ -30,19 +30,18 @@
           :options="typeOptions"
           class="typeSelect" />
 
-        <n-text v-if="noResults" type="warning"> No Pokémon found </n-text>
+        <n-text v-if="noResults" type="warning">No Pokémon found</n-text>
       </div>
     </div>
   </n-space>
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref, watch } from "vue";
 import type { PokemonTypeName } from "../types/pokemon";
 
 const props = defineProps<{
   query: string;
-  canSearch: boolean;
   selectedTypes: PokemonTypeName[];
   allTypes: PokemonTypeName[];
   noResults: boolean;
@@ -54,10 +53,14 @@ const emit = defineEmits<{
   (e: "search"): void;
 }>();
 
-const queryModel = computed({
-  get: () => props.query,
-  set: (v: string) => emit("update:query", v),
-});
+const draftQuery = ref(props.query ?? "");
+
+watch(
+  () => props.query,
+  (v) => {
+    draftQuery.value = v ?? "";
+  },
+);
 
 const typesModel = computed({
   get: () => props.selectedTypes,
@@ -67,6 +70,27 @@ const typesModel = computed({
 const typeOptions = computed(() =>
   props.allTypes.map((t) => ({ label: t, value: t })),
 );
+
+const canSearchLocal = computed(() => {
+  const q = (draftQuery.value ?? "").trim();
+
+  if (/^\d+$/.test(q)) return q.length >= 1;
+
+  return q.length >= 3;
+});
+
+function onSearch() {
+  if (!canSearchLocal.value) return;
+
+  const committed = (draftQuery.value ?? "").trim();
+  emit("update:query", committed);
+  emit("search");
+}
+
+function onClear() {
+  draftQuery.value = "";
+  emit("update:query", "");
+}
 </script>
 
 <style scoped>
@@ -84,7 +108,6 @@ const typeOptions = computed(() =>
   gap: 16px;
 }
 
-/* Top Row */
 .topRow {
   display: flex;
   align-items: center;
@@ -93,24 +116,6 @@ const typeOptions = computed(() =>
   flex-wrap: wrap;
 }
 
-.titleWrap {
-  display: flex;
-  flex-direction: column;
-}
-
-.title {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 600;
-  line-height: 1.2;
-}
-
-.subtitle {
-  font-size: 13px;
-  opacity: 0.65;
-}
-
-/* Search */
 .searchRow {
   display: flex;
   gap: 10px;
@@ -121,7 +126,6 @@ const typeOptions = computed(() =>
   width: 260px;
 }
 
-/* Filters */
 .filterRow {
   display: flex;
   align-items: center;

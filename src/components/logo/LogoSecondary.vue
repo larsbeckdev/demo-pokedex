@@ -3,8 +3,8 @@
 <template>
   <a href="/" class="logo-link">
     <img
-      src="@/assets/png/vCard-QR.png"
-      alt="vcard-qr logo"
-      class="select-none w-16 h-16" />
+      src="@/assets/png/Pokeball.png"
+      alt="Pokeball logo"
+      class="select-none w-6 h-6" />
   </a>
 </template>

@@ -33,6 +33,10 @@ The more complete its database, the more powerful Pokédex becomes.
 
 ---
 
+https://github.com/partywhale/pokemon-type-icons
+
+---
+
 ## 📦 Install
 
 ```bash

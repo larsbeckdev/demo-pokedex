@@ -1,4 +1,4 @@
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import type { PokemonDetail, PokemonTypeName } from "../types/pokemon";
 import {
   fetchPokemonDetail,
@@ -6,7 +6,7 @@ import {
   fetchTypes,
 } from "../api/pokeApi";
 
-const PAGE_SIZE = 24; // 20–40 ✅
+const PAGE_SIZE = 24; 
 
 function titleCase(name: string) {
   return name.slice(0, 1).toUpperCase() + name.slice(1);
@@ -17,7 +17,9 @@ export function usePokedex() {
   const loadingMore = ref(false);
   const error = ref<string | null>(null);
 
-  const query = ref("");
+  const queryDraft = ref("");
+  const queryCommitted = ref("");
+
   const selectedTypes = ref<PokemonTypeName[]>([]);
   const allTypes = ref<PokemonTypeName[]>([]);
 
@@ -27,17 +29,33 @@ export function usePokedex() {
   const overlayOpen = ref(false);
   const overlayIndex = ref<number>(0);
 
-  const canSearch = computed(() => query.value.trim().length >= 3);
+  const canSearch = computed(() => {
+    const q = queryDraft.value.trim();
+    if (/^\d+$/.test(q)) return q.length >= 1; // ID
+    return q.length >= 3; // Name
+  });
+
+  watch(queryDraft, (v) => {
+    if (v.trim() === "") {
+      queryCommitted.value = "";
+      overlayIndex.value = 0;
+    }
+  });
 
   const filtered = computed(() => {
-    const q = query.value.trim().toLowerCase();
+    const q = queryCommitted.value.trim().toLowerCase();
     const types = selectedTypes.value;
 
     return items.value.filter((p) => {
-      const matchesQuery =
-        q.length < 3
-          ? true
-          : p.name.toLowerCase().includes(q) || String(p.id) === q;
+      let matchesQuery = true;
+
+      if (q) {
+        if (/^\d+$/.test(q)) {
+          matchesQuery = String(p.id) === q; // ID
+        } else {
+          matchesQuery = p.name.toLowerCase().includes(q); // Name
+        }
+      }
 
       const pTypes = p.types.map((t) => t.type.name);
       const matchesTypes =
@@ -46,6 +64,8 @@ export function usePokedex() {
       return matchesQuery && matchesTypes;
     });
   });
+
+  /* ---------------- API ---------------- */
 
   async function loadTypes() {
     allTypes.value = await fetchTypes();
@@ -57,7 +77,6 @@ export function usePokedex() {
 
     try {
       const list = await fetchPokemonList(offset.value, PAGE_SIZE);
-
       const details = await Promise.all(
         list.map((x) => fetchPokemonDetail(x.name)),
       );
@@ -85,12 +104,22 @@ export function usePokedex() {
     }
   }
 
-  async function runSearch() {
-    // requirement: Search via button only, min 3 chars ✅
+  /* ---------------- SEARCH ---------------- */
+
+  function runSearch() {
     if (!canSearch.value) return;
-    // We filter locally on already loaded cards.
-    // (Optional: you can also fetch by exact name/id on demand.)
+
+    queryCommitted.value = queryDraft.value.trim();
+    overlayIndex.value = 0;
   }
+
+  function clearSearch() {
+    queryDraft.value = "";
+    queryCommitted.value = "";
+    overlayIndex.value = 0;
+  }
+
+  /* ---------------- OVERLAY ---------------- */
 
   function openOverlayById(id: number) {
     const idx = filtered.value.findIndex((p) => p.id === id);
@@ -127,8 +156,13 @@ export function usePokedex() {
     items,
     filtered,
 
-    query,
+    // search 
+    query: queryDraft,
     canSearch,
+    runSearch,
+    clearSearch,
+
+    // filters
     selectedTypes,
     allTypes,
 
@@ -143,7 +177,6 @@ export function usePokedex() {
     // actions
     init,
     loadPage,
-    runSearch,
 
     // helpers
     titleCase,
